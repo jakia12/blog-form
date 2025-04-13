@@ -1,7 +1,13 @@
 import getBlogs from "@/app/quries/getBlogs";
+import getDeleteBlogbyId from "@/app/quries/getDeleteBlogbyId";
+import Link from "next/link";
+import Modal from "../Modal";
 
-const AllblogPage = async () => {
-  const blogs = await getBlogs();
+const AllblogPage = async ({ searchParams, params: { id } }) => {
+  const show = searchParams?.show;
+  const blogPosts = await getBlogs();
+
+  const getDeleteBlog = await getDeleteBlogbyId();
 
   // const [blogs, setBlogs] = useState([]);
   // const [showModal, setShowModal] = useState(false);
@@ -55,6 +61,11 @@ const AllblogPage = async () => {
 
   //   setShowModal(false);
   // };
+
+  const deleteBlog = async () => {
+    "use server";
+    await getDeleteBlog();
+  };
   return (
     <div className="overflow-x-auto mt-4">
       <table className="min-w-full table-auto border border-gray-300">
@@ -67,7 +78,7 @@ const AllblogPage = async () => {
           </tr>
         </thead>
         <tbody>
-          {blogs.map((blog) => (
+          {blogPosts.map((blog) => (
             <tr key={blog._id} className="border-t">
               <td className="px-4 py-2 text-[#000]">{blog.title}</td>
               <td className="px-4 py-2 text-[#000]">
@@ -86,12 +97,19 @@ const AllblogPage = async () => {
                   Edit
                 </button>
                 <button className="bg-red-500 hover:bg-red-600  px-3 py-1 rounded text-sm text-[#000]">
-                  Delete
+                  <Link
+                    href="/dashboard/posts?show=true"
+                    className="text-[#000]"
+                  >
+                    Delete
+                  </Link>
+
+                  {show && <Modal blogId={blog._id} />}
                 </button>
               </td>
             </tr>
           ))}
-          {blogs.length === 0 && (
+          {blogPosts.length === 0 && (
             <tr>
               <td colSpan={4} className="text-center py-4">
                 No blogs found.
@@ -100,6 +118,8 @@ const AllblogPage = async () => {
           )}
         </tbody>
       </table>
+
+      {/* call the modal */}
     </div>
   );
 };
